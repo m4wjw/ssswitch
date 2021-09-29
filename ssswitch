@@ -1,15 +1,40 @@
 #!/bin/bash
 
 # Name: ssswitch
-# Version: v1.0
+# Version: v1.1
 # Editor: Sam
+
+# configure your superset ip address and port
+# IP_ADDRESS="192.168.0.1"
+IP_ADDRESS="192.168.201.177"
+# PORT="8787"
+PORT="8787"
+
+
+# test
+test_flag=0
+ip_list=$(ifconfig | grep "inet " | awk '{print $2}')
+for i in $ip_list
+do 
+  if [ $i = $IP_ADDRESS ]
+  then
+    test_flag=1
+  fi
+done
+
+if [ $test_flag != 1 ]
+then
+  echo -e "\033[31;1m$IP_ADDRESS doesn't exist in this device.\033[0m."
+  exit 1
+fi
+
 
 function start(){
   condition=$(ps -ef | awk '/gunicorn/ && !/awk/{print $2}' | wc -l)
   #echo $condition
   if [[ $condition -eq 0 ]]
   then
-    gunicorn --workers 5 --timeout 120 --bind 192.168.201.177:8787 "superset.app:create_app()" --daemon
+    gunicorn --workers 5 --timeout 120 --bind $IP_ADDRESS:$PORT "superset.app:create_app()" --daemon
     if [[ $? -eq 0 ]]
     then 
       echo -e "\033[32;1mSuperset has been launched.\033[0m"
@@ -52,7 +77,7 @@ function superset_restart(){
   condition=$(ps -ef | awk '/gunicorn/ && !/awk/{print $2}' | wc -l)
   if [[ $condition -eq 0 ]]
   then
-    gunicorn --workers 5 --timeout 120 --bind 192.168.201.177:8787 "superset.app:create_app()" --daemon
+    gunicorn --workers 5 --timeout 120 --bind $IP_ADDRESS:$PORT "superset.app:create_app()" --daemon
     if [[ $? -eq 0 ]]
     then
       echo -e "\033[32;1mSuperset has been restarted.\033[0m"
@@ -63,7 +88,7 @@ function superset_restart(){
     ps -ef | awk '/superset/ && !/awk/{print $2}' | xargs kill -9
     if [[ $? -eq 0 ]]
     then
-      gunicorn --workers 5 --timeout 120 --bind 192.168.201.177:8787 "superset.app:create_app()" --daemon
+      gunicorn --workers 5 --timeout 120 --bind $IP_ADDRESS:$PORT "superset.app:create_app()" --daemon
       if [[ $? -eq 0 ]]
       then
         echo -e "\033[32;1mSuperset has been restarted.\033[0m"
