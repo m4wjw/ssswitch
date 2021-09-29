@@ -1,0 +1,94 @@
+#!/bin/bash
+
+# Name: ssswitch
+# Version: v1.0
+# Editor: Sam
+
+function start(){
+  condition=$(ps -ef | awk '/gunicorn/ && !/awk/{print $2}' | wc -l)
+  #echo $condition
+  if [[ $condition -eq 0 ]]
+  then
+    gunicorn --workers 5 --timeout 120 --bind 192.168.201.177:8787 "superset.app:create_app()" --daemon
+    if [[ $? -eq 0 ]]
+    then 
+      echo -e "\033[32;1mSuperset has been launched.\033[0m"
+    else
+      echo -e "\033[31;1mError happened when launching the superset.\033[0m"
+    fi
+  else
+    echo -e "\033[32;1mSuperset is running now.\033[0m"
+  fi
+  exit 0
+}
+
+function stop(){
+  condition=$(ps -ef | awk '/gunicorn/ && !/awk/{print $2}' | wc -l)
+  if [[ $condition -eq 0 ]]
+  then
+    echo -e "\033[32;1mSuperset is not running.\033[0m"
+  else
+    ps -ef | awk '/superset/ && !/awk/{print $2}' | xargs kill -9
+    if [[ $? -eq 0 ]]
+    then
+      echo -e "\033[32;1mSuperset has been ceased just now.\033[0m"
+    else
+      echo -e "\033[31;1mError happened when ceasing the superset.\033[0m"
+    fi
+  fi
+}
+
+function superset_status(){
+  condition=$(ps -ef | awk '/gunicorn/ && !/awk/{print $2}' | wc -l)
+  if [[ $condition -eq 0 ]]
+  then
+    echo "Superset is not running."
+  else
+    echo "Superset is running now."
+  fi
+}
+
+function superset_restart(){
+  condition=$(ps -ef | awk '/gunicorn/ && !/awk/{print $2}' | wc -l)
+  if [[ $condition -eq 0 ]]
+  then
+    gunicorn --workers 5 --timeout 120 --bind 192.168.201.177:8787 "superset.app:create_app()" --daemon
+    if [[ $? -eq 0 ]]
+    then
+      echo -e "\033[32;1mSuperset has been restarted.\033[0m"
+    else
+      echo -e "\033[31;1mError happened when restarting the superset.\033[0m"
+    fi
+  else
+    ps -ef | awk '/superset/ && !/awk/{print $2}' | xargs kill -9
+    if [[ $? -eq 0 ]]
+    then
+      gunicorn --workers 5 --timeout 120 --bind 192.168.201.177:8787 "superset.app:create_app()" --daemon
+      if [[ $? -eq 0 ]]
+      then
+        echo -e "\033[32;1mSuperset has been restarted.\033[0m"
+      else
+        echo -e "\033[31;1mError happened when restarting the superset.\033[0m"
+      fi
+    fi
+  fi
+}
+
+case $1 in
+  "start")
+    start
+    ;;
+  "stop")
+    stop
+    ;;
+  "status")
+    superset_status
+    ;;
+  "restart")
+    superset_restart
+    ;;
+  *)
+    echo -e "\033[31;1mBad intput parameter.\033[0m"
+    exit 1
+    ;;
+esac
