@@ -11,7 +11,7 @@ IP_ADDRESS="192.168.201.177"
 PORT="8787"
 
 
-# test
+# check ip address
 test_flag=0
 ip_list=$(ifconfig | grep "inet " | awk '{print $2}')
 for i in $ip_list
@@ -102,15 +102,18 @@ function superset_restart(){
 case $1 in
   "start")
     start
+    running=1
     ;;
   "stop")
     stop
+    running=0
     ;;
   "status")
     superset_status
     ;;
   "restart")
     superset_restart
+    running=1
     ;;
   *)
     echo -e "\033[31;1mBad intput parameter.\033[0m"

@@ -1,8 +1,8 @@
 # ssswitch
 
-* Name: ssswitch *
-* Editor: Sam *
-* Version: v1.0 *
+*Name: ssswitch*
+*Editor: Sam*
+*Version: v1.1*
 
 ## 1. Introduction
 This tool is used to turn on or off the superset.
@@ -14,11 +14,11 @@ vi ssswitch
 
 IP_ADDRESS="x.x.x.x"
 ```
-2. Configure the SUPERSET_NAME of your conda env
+2. Configure the PORT of your service.
 ```shell
 vi ssswitch
 
-SUPERSET_NAME
+PORT="xxxx"
 ```
 3. Activate the superset env
 ```shell
